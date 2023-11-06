@@ -45,3 +45,12 @@ class payments_customer(models.Model):
 
 	def __str__(self):
 		return '{}'.format(self.product_name)
+
+class Registro(models.Model):
+	nombre_establecimiento = models.CharField(max_length=100)
+	direccion = models.CharField(max_length=100)
+	denominacion = models.CharField(max_length=30)
+	horario_funcionamiento = models.CharField(max_length=30)
+
+	def __str__(self):
+		return '{}'.format(self.id)

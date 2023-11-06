@@ -108,17 +108,20 @@ function login(){
 }
 
     function create_customer(){
-            var name = document.getElementById("Name").value
-            var paternal_surname = document.getElementById("Paternal_surname").value
-            var email = document.getElementById("Email").value
+            var nombre_establecimiento = document.getElementById("nombre_establecimiento").value
+            var direccion = document.getElementById("direccion").value
+            var denominacion = document.getElementById("denominacion").value
+            var horario_funcionamiento = document.getElementById("horario_funcionamiento").value
+
     
             $.ajax({
             url:"{% url 'create_customer' %}",
             type: 'get',
             data:{
-                'name':name,
-                'paternal_surname':paternal_surname,
-                'email':email
+                'nombre_establecimiento':nombre_establecimiento,
+                'direccion':direccion,
+                'denominacion':denominacion,
+                'horario_funcionamiento':horario_funcionamiento
 
             },
             dataType:'json',
@@ -197,41 +200,36 @@ function crearEnlaceDescarga(qrDataURL) {
     })
             
     }
+    function irACrearQR(pk) {
+    // Genera la URL basada en el valor de pk y redirige al usuario
+    var urlDjango = `{% url 'crear_qr' 0 %}`.replace('0', pk);
+    window.location.href = urlDjango;
+}
 
     function vistas(data){
         $("#cuerpo").html("");
  //llenado de datos en tabla
+
         for (var i in data.list_objects){
         var tr = `<tr>
             <td>`+data.list_objects[i].pk+`</td>
-            <td>`+data.list_objects[i].name+`</td>
-            <td>`+data.list_objects[i].paternal_surname+`</td>
-            <td>`+data.list_objects[i].email+`</td>
+            <td>`+data.list_objects[i].nombre_establecimiento+`</td>
+            <td>`+data.list_objects[i].direccion+`</td>
+            <td>`+data.list_objects[i].denominacion+`</td>
+            <td>`+data.list_objects[i].horario_funcionamiento+`</td>
+
             {% if rol == "super_administrator"%}
             <td>  
                 <button onclick="abrir_modal(${data.list_objects[i].pk})" class="btn btn-primary btn-md">editar</button>
                 <button onclick="eliminar_customer(${data.list_objects[i].pk})" class="btn btn-primary btn-md">eliminar</button>
+                <a href="#" class="btn btn-primary btn-md" onclick="irACrearQR(${data.list_objects[i].pk})">qr</a>
+
                         </td>
             {% endif %}
       
         </tr>`;
         $("#cuerpo").append(tr)      }
-        //llenado de paguinacion 
-
-        $("#cuerpo2").html("");
-        //llenado de datos en tabla
-        console.log(data.list_objects2)
-        for (var i in data.list_objects2){
-        var tr = `<tr>
-            <td>`+data.list_objects2[i].pk+`</td>
-            <td>`+data.list_objects2[i].amount+`</td>
-            <td>`+data.list_objects2[i].customer_id+`</td>
-            <td>`+data.list_objects2[i].product_name+`</td>
-            <td>`+data.list_objects2[i].quantity+`</td>
-  
-        </tr>`;
-        $("#cuerpo2").append(tr)      }
-        //llenado de paguinacion 
+        //llenado de paguinacion
 
     }
 
@@ -260,23 +258,29 @@ function abrir_modal(id){
         <h2>Editar Registro `+data[0].pk+`</h2>
 
     <div class="form-group">
-      <label for="inputEmail" class="col-lg-2 control-label">name</label>
+      <label for="inputEmail" class="col-lg-2 control-label">nombre_establecimiento</label>
       <div class="col-lg-10">
-        <input type="text" class="form-control" name="name" id="name" placeholder="name" value=`+data[0].name+`>
+        <input type="text" class="form-control" name="nombre_establecimiento" id="nombre_establecimiento" placeholder="nombre_establecimiento" value=`+data[0].nombre_establecimiento+`>
       </div>
     </div>
     <div class="form-group">
-      <label for="inputEmail" class="col-lg-2 control-label">paternal_surname</label>
+      <label for="inputEmail" class="col-lg-2 control-label">direccion</label>
       <div class="col-lg-10">
-        <input type="text" class="form-control" id="paternal_surname" placeholder="paternal_surname" value=`+data[0].paternal_surname+`>
+        <input type="text" class="form-control" id="direccion" placeholder="direccion" value=`+data[0].direccion+`>
       </div>
     </div>
     <div class="form-group">
-      <label for="inputEmail" class="col-lg-2 control-label">Email</label>
+      <label for="inputEmail" class="col-lg-2 control-label">denominacion</label>
       <div class="col-lg-10">
-        <input type="text" class="form-control" id="email" placeholder="email" value=`+data[0].email+`>
+        <input type="text" class="form-control" id="denominacion" placeholder="denominacion" value=`+data[0].denominacion+`>
       </div>
-    </div>    
+    </div>
+    <div class="form-group">
+      <label for="inputEmail" class="col-lg-2 control-label">horario_funcionamiento</label>
+      <div class="col-lg-10">
+        <input type="text" class="form-control" id="horario_funcionamiento" placeholder="horario_funcionamiento" value=`+data[0].horario_funcionamiento+`>
+      </div>
+    </div>      
     <div class="form-group">
       <div class="col-lg-10 col-lg-offset-2">
         <input class="btn btn-default" onclick="editar_customer(`+data[0].pk+`);" onclick="cerrar_aviso()" type="submit" value="Ingresar">
@@ -297,20 +301,21 @@ function abrir_modal(id){
 
 
 function editar_customer(id){
-    var name = document.getElementById("name").value
-    var paternal_surname = document.getElementById("paternal_surname").value
-    var email = document.getElementById("email").value
-    
-    console.log("jiji"+name)
+    var nombre_establecimiento = document.getElementById("nombre_establecimiento").value
+    var direccion = document.getElementById("direccion").value
+    var denominacion = document.getElementById("denominacion").value
+    var horario_funcionamiento = document.getElementById("horario_funcionamiento").value
+
+    alert(nombre_establecimiento)
     $.ajax({
     url:"{% url 'editar_customer' %}",
     type: 'get',
     data:{
-        'name':name,
-        'paternal_surname':paternal_surname,
-        'email':email,
-        'id':id
-
+        'id':id,
+        'nombre_establecimiento':nombre_establecimiento,
+        'direccion':direccion,
+        'denominacion':denominacion,
+        'horario_funcionamiento':horario_funcionamiento
 
     },
     dataType:'json',

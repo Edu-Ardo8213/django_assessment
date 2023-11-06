@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from webApp.models import administrators, customer, payments_customer
+from webApp.models import administrators, customer, payments_customer, Registro
 from django.http import JsonResponse ,HttpResponse
 from django.contrib.auth import logout
 from django.core import serializers
@@ -164,11 +164,11 @@ def menu(request):
 	if login == None:
 		return redirect("login")
 	if rol == "administrator":
-		list_objects , list_objects2 =vistas()
-		contexto = {'rol': rol,'object_list':list_objects,'object_list2':list_objects2}
+		list_objects =vistas()
+		contexto = {'rol': rol,'object_list':list_objects}
 	elif rol == "super_administrator":
-		list_objects , list_objects2 =vistas()
-		contexto = {'rol': rol,'object_list':list_objects,'object_list2':list_objects2}
+		list_objects =vistas()
+		contexto = {'rol': rol,'object_list':list_objects}
 	return render(request, 'menu.html',contexto)
 
 # Creación de usuario por medio de la interfaz
@@ -180,22 +180,22 @@ def create_customer(request):
 	if rol == "administrator":
 		pass
 	elif rol == "super_administrator":
-		name = request.GET.get('name','')
-		paternal_surname = request.GET.get('paternal_surname','')
-		email = request.GET.get('email','')
-		if customer.objects.filter(name=name, paternal_surname=paternal_surname,email=email).exists():
+		nombre_establecimiento = request.GET.get('nombre_establecimiento','')
+		direccion = request.GET.get('direccion','')
+		denominacion = request.GET.get('denominacion','')
+		horario_funcionamiento = request.GET.get('horario_funcionamiento','')
+
+		if Registro.objects.filter(nombre_establecimiento=nombre_establecimiento, direccion=direccion,denominacion=denominacion,horario_funcionamiento=horario_funcionamiento).exists():
 			data = {'mensaje': 'ya existe ese customer'}
 			return JsonResponse(data)	
 		else:
-			nuevo_registro = customer(name=name, paternal_surname=paternal_surname,email=email)
+			nuevo_registro = Registro(nombre_establecimiento=nombre_establecimiento, direccion=direccion,denominacion=denominacion,horario_funcionamiento=horario_funcionamiento)
 			nuevo_registro.save()
-			payments_customers = payments_customer(amount="10", customer_id=nuevo_registro,product_name="silla",quantity=2)
-			payments_customers.save()
-			list_objects , list_objects2 =vistas()
+			list_objects =vistas()
 			data = reverse('editar_reporte', args=[nuevo_registro.id])
 			base_url = request.build_absolute_uri('/')
 			url_completa = f"{base_url.rstrip('/')}{data}"
-			contexto = {'mensaje': 'Se creo customer correctamente','list_objects':list_objects,'list_objects2':list_objects2,'url_completa':url_completa}
+			contexto = {'mensaje': 'Se creo customer correctamente','list_objects':list_objects,'url_completa':url_completa}
 			return JsonResponse(contexto)
 	
 
@@ -209,10 +209,10 @@ def eliminar_customer(request):
 		return JsonResponse({"error": "solo los super administrator pueden eliminar en customers"})
 	elif rol == "super_administrator":
 		id = request.GET.get('id','')
-		registro = customer.objects.get(id=id)
+		registro = Registro.objects.get(id=id)
 		registro.delete()
-		list_objects , list_objects2 =vistas()
-	contexto = {'mensaje': f'se elimino registro con el id {id}','list_objects':list_objects,'list_objects2':list_objects2}
+		list_objects =vistas()
+	contexto = {'mensaje': f'se elimino registro con el id {id}','list_objects':list_objects}
 	return JsonResponse(contexto)
 
 # Edita registro por medio de la interfaz
@@ -225,12 +225,14 @@ def editar_customer(request):
 		return JsonResponse({"error": "solo los super administrator pueden actualizar en customers"})
 	elif rol == "super_administrator":
 		id = request.GET.get('id','')
-		name = request.GET.get('name','')
-		paternal_surname = request.GET.get('paternal_surname','')
-		email = request.GET.get('email','')
-		customer.objects.filter(id=id).update(name=name, paternal_surname=paternal_surname,email=email)
-		list_objects , list_objects2 =vistas()
-	contexto = {'mensaje': f'Se actualizo correctamente','list_objects':list_objects,'list_objects2':list_objects2}
+		nombre_establecimiento = request.GET.get('nombre_establecimiento','')
+		direccion = request.GET.get('direccion','')
+		denominacion = request.GET.get('denominacion','')
+		horario_funcionamiento = request.GET.get('horario_funcionamiento','')
+		print("id",nombre_establecimiento)
+		Registro.objects.filter(id=id).update(nombre_establecimiento=nombre_establecimiento, direccion=direccion,denominacion=denominacion,horario_funcionamiento=horario_funcionamiento)
+		list_objects =vistas()
+	contexto = {'mensaje': f'Se actualizo correctamente','list_objects':list_objects}
 	return JsonResponse(contexto)
 
 # Consulta datos del registro para actualizar por medio de la modal
@@ -241,7 +243,7 @@ def consulta_editar(request):
 		return redirect("login")
 	if rol == "administrator":
 		id=request.GET.get('id','no')
-		object_list1=customer.objects.filter(id=id)
+		object_list1=Registro.objects.filter(id=id)
 		serialized_objects  = serializers.serialize('json', object_list1)
 		json_objects=json.loads(serialized_objects)
 		list_objects = []   
@@ -250,7 +252,7 @@ def consulta_editar(request):
 			list_objects.append(json_objects[index]['fields'])
 	elif rol == "super_administrator":
 		id=request.GET.get('id','no')
-		object_list1=customer.objects.filter(id=id)
+		object_list1=Registro.objects.filter(id=id)
 		serialized_objects  = serializers.serialize('json', object_list1)
 		json_objects=json.loads(serialized_objects)
 		list_objects = []   
@@ -262,30 +264,25 @@ def consulta_editar(request):
 # Método que trae los registros de las tablas customer y payments customer
 def vistas():
 
-	object_list1 = customer.objects.all()
+	object_list1 = Registro.objects.all()
 	serialized_objects  = serializers.serialize('json', object_list1)
 	json_objects=json.loads(serialized_objects)
 	list_objects = []   
 	for index in range(len(json_objects)):
 		list_id = json_objects[index]['fields']['pk'] = json_objects[index]['pk']
 		list_objects.append(json_objects[index]['fields'])
-	object_list2 = payments_customer.objects.all()
-	serialized_objects2  = serializers.serialize('json', object_list2)
-	json_objects2=json.loads(serialized_objects2)
-	list_objects2 = []   
-	for index in range(len(json_objects2)):
-		list_id = json_objects2[index]['fields']['pk'] = json_objects[index]['pk']
-		list_objects2.append(json_objects2[index]['fields'])
 
-	return list_objects, list_objects2
+	return list_objects
 
 def editar_reporte(request, id):
-	ID = customer.objects.get(id=id)
-	name = customer.objects.get(id=id)
-	paternal_surname = customer.objects.get(id=id)
-	email = customer.objects.get(id=id)
+	ID = Registro.objects.get(id=id)
+	nombre_establecimiento = Registro.objects.get(id=id)
+	direccion = Registro.objects.get(id=id)
+	denominacion = Registro.objects.get(id=id)
+	horario_funcionamiento = Registro.objects.get(id=id)
 
-	contexto = {'ID': ID , 'name': name , 'paternal_surname': paternal_surname , 'email': email}
+
+	contexto = {'ID': ID , 'nombre_establecimiento': nombre_establecimiento, 'direccion': direccion, 'denominacion': denominacion,'horario_funcionamiento':horario_funcionamiento}
 
 	return render(request, 'editar_registro/editar_reporte.html', contexto)
 
@@ -310,7 +307,6 @@ import os
 from django.http import HttpResponse
 import os
 import qrcode
-from .models import customer
 from django.urls import reverse
 
 def crear_qr(request, id):
@@ -326,8 +322,8 @@ def crear_qr(request, id):
 
     # Obtener el objeto del registro
     try:
-        registro = customer.objects.get(id=id)
-    except customer.DoesNotExist:
+        registro = Registro.objects.get(id=id)
+    except Registro.DoesNotExist:
         return HttpResponse("Registro no encontrado")
 
     # Generar el código QR
