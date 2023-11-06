@@ -1,0 +1,39 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<br>
+<h2>Registro ha actualizar con el Folio {{ ID.id }}</h2>
+<form action="{% url 'editar_reporte' ID.id %}" method="GET">
+	{% csrf_token %}
+
+	<div class="row">
+		<div class="col-md-10 col-md-offset-2">
+			<div class="form-group">
+				<label >name</label>
+				<input class="form-control" value="{{ name.name }}" disabled="disabled" type="text" name="name">
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-10 col-md-offset-2">
+			<div class="form-group">
+				<label >paternal_surname</label>
+				<input class="form-control" value="{{ paternal_surname.paternal_surname }}" disabled="disabled" type="text" name="paternal_surname">
+			</div>
+		</div>
+	</div>	<div class="row">
+		<div class="col-md-10 col-md-offset-2">
+			<div class="form-group">
+				<label >email</label>
+				<input class="form-control" value="{{ email.email }}" disabled="disabled" type="text" name="email">
+			</div>
+		</div>
+	</div>
+	</div>
+
+	
+</form>
+{% block javascript %}
+
+
+{% endblock %}
+{% endblock %}

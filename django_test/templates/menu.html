@@ -37,6 +37,9 @@ Informática
           <input class="btn btn-default" onclick="create_customer()" type="submit" value="Ingresar">
         </div>
       </div>
+
+      <h1>WebSocket Example</h1>
+      <p>Random number received from WebSocket: <span id="random-number">Waiting for number...</span></p>
 {% endif %}
 
 <br>
@@ -73,6 +76,8 @@ Informática
           <button onclick="abrir_modal({{i.pk}})" class="btn btn-primary btn-md">editar</button>
 
           <button onclick="eliminar_customer({{i.pk}})" class="btn btn-primary btn-md">eliminar</button>
+
+          <a href="{% url 'crear_qr' i.pk %}" class="btn btn-primary btn-md">qr</a>
 
         </td>
         {% endif %}

@@ -74,6 +74,7 @@ def create_customer_api(request):
 			payments_customers = payments_customer(amount="10", customer_id=nuevo_registro,product_name="silla",quantity=2)
 			payments_customers.save()
 
+
 			return JsonResponse({"response": "se creo con éxito"})
 
 # Actualiza un registro en customer
@@ -145,7 +146,7 @@ def login_response(request):
 	else:
 		data = {'mensaje': 'usuario o contraseña incorrectos'}
 		return JsonResponse(data)
-
+ 
 # Renderiza el template del login
 def login(request):
 	return render(request, 'login.html')
@@ -191,8 +192,10 @@ def create_customer(request):
 			payments_customers = payments_customer(amount="10", customer_id=nuevo_registro,product_name="silla",quantity=2)
 			payments_customers.save()
 			list_objects , list_objects2 =vistas()
-
-			contexto = {'mensaje': 'Se creo customer correctamente','list_objects':list_objects,'list_objects2':list_objects2}
+			data = reverse('editar_reporte', args=[nuevo_registro.id])
+			base_url = request.build_absolute_uri('/')
+			url_completa = f"{base_url.rstrip('/')}{data}"
+			contexto = {'mensaje': 'Se creo customer correctamente','list_objects':list_objects,'list_objects2':list_objects2,'url_completa':url_completa}
 			return JsonResponse(contexto)
 	
 
@@ -275,3 +278,95 @@ def vistas():
 		list_objects2.append(json_objects2[index]['fields'])
 
 	return list_objects, list_objects2
+
+def editar_reporte(request, id):
+	ID = customer.objects.get(id=id)
+	name = customer.objects.get(id=id)
+	paternal_surname = customer.objects.get(id=id)
+	email = customer.objects.get(id=id)
+
+	contexto = {'ID': ID , 'name': name , 'paternal_surname': paternal_surname , 'email': email}
+
+	return render(request, 'editar_registro/editar_reporte.html', contexto)
+
+
+import qrcode
+from django.http import HttpResponse
+from io import BytesIO
+
+import qrcode
+from django.http import HttpResponse, JsonResponse
+from io import BytesIO
+
+import qrcode
+import os
+from django.http import HttpResponse, JsonResponse
+from io import BytesIO
+from PIL import Image
+
+from django.http import HttpResponse
+import os
+
+from django.http import HttpResponse
+import os
+import qrcode
+from .models import customer
+from django.urls import reverse
+
+def crear_qr(request, id):
+    # Verificar la autenticación y el rol del usuario
+    login = request.session.get('login', None)
+    rol = request.session.get('rol', None)
+
+    if login is None:
+        return redirect("login")
+
+    if rol not in ["administrator", "super_administrator"]:
+        return HttpResponse("Acceso denegado")
+
+    # Obtener el objeto del registro
+    try:
+        registro = customer.objects.get(id=id)
+    except customer.DoesNotExist:
+        return HttpResponse("Registro no encontrado")
+
+    # Generar el código QR
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+
+    data = reverse('editar_reporte', args=[id])
+    base_url = request.build_absolute_uri('/')
+    url_completa = f"{base_url.rstrip('/')}{data}"
+
+    qr.add_data(url_completa)
+    qr.make(fit=True)
+
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    # Guardar la imagen en la carpeta de descargas del usuario
+    user_download_folder = os.path.expanduser("~")
+    image_path = os.path.join(user_download_folder, f'qr_{id}.png')
+    img.save(image_path, "PNG")
+
+    # Crear una respuesta HTTP con la imagen del QR
+    response = HttpResponse(content_type='image/png')
+
+    # Configurar el encabezado de la respuesta para que el navegador la interprete como una imagen en línea
+    response['Content-Disposition'] = f'inline; filename=qr_{id}.png'
+
+    # Abre y lee la imagen del código QR generada previamente
+    with open(image_path, 'rb') as qr_image_file:
+        response.write(qr_image_file.read())
+
+    return response
+
+
+
+
+
+
+

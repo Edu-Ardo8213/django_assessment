@@ -38,6 +38,7 @@
 </head>
 
 <body>
+  
     {% block navbar %}
     <nav class="navbar navbar-default">
         <div class="container-fluid">
@@ -66,6 +67,7 @@
         {% endblock %} {% block footer %} {% endblock%}
     </div>
 
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
 
     <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
         integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
@@ -121,9 +123,15 @@ function login(){
             },
             dataType:'json',
             success: function (data) {
-                if (data.mensaje == 'Se creo customer correctamente'){
+                if (data.mensaje != 'ya existe ese customer'){
                     alert(data.mensaje)
                     vistas(data)
+                    // Generar el código QR con la URL
+                    generarQR(data.url_completa, function (qrDataURL) {
+                            // Crear un enlace de descarga con el código QR
+                            crearEnlaceDescarga(qrDataURL);
+
+                });
                 }
                 else{
                     alert(data.mensaje)
@@ -138,7 +146,36 @@ function login(){
     
     }
     
-    
+    function generarQR(qr_url, callback) {
+    // Crear un objeto QRCode con la URL
+    var qrcode = new QRCode(document.createElement("div"), qr_url);
+
+    // Obtener la imagen del QR en formato base64
+    var img = qrcode._el.firstChild;
+    var canvas = document.createElement("canvas");
+    canvas.width = canvas.height = img.width;
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+    var qrDataURL = canvas.toDataURL("image/png");
+
+    // Llamar al callback con los datos del código QR en base64
+    callback(qrDataURL);
+}
+
+function crearEnlaceDescarga(qrDataURL) {
+    // Crear un enlace de descarga con el código QR
+    var a = document.createElement('a');
+    a.href = qrDataURL;
+    a.download = 'codigo_qr.png'; // Nombre del archivo de descarga
+
+    // Simular un clic en el enlace para iniciar la descarga
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+
 
     function eliminar_customer(id){
         $.ajax({
@@ -296,6 +333,18 @@ function editar_customer(id){
                 
     
     }
+
+</script>
+    <script>
+  const websocketPath = 'ws/create_customer/';
+  const socket = new WebSocket(`ws://${window.location.host}/${websocketPath}`);        
+        socket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            const randomNumberElement = document.getElementById('random-number');
+            randomNumberElement.textContent = data.number;
+        };
+    </script>
+
 </script>
 </body>
 

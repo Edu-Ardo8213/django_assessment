@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-k&i5i@&)9yy_a3lvc9p+67dmuud7x4#eu#yp78#t1eqg4==$3u
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -39,8 +39,31 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "webApp",
-    'rest_framework'
+    'rest_framework',
+    'channels',
+
 ]
+
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "DEBUG",
+    },
+}
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -71,6 +94,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "django_test.wsgi.application"
+ASGI_APPLICATION = "django_test.asgi.application"
 
 
 # Database
@@ -79,7 +103,7 @@ WSGI_APPLICATION = "django_test.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": BASE_DIR / "djangoassassment.sqlite3",
     }
 }
 

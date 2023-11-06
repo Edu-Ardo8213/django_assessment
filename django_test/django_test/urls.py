@@ -31,7 +31,12 @@ urlpatterns = [
     path("list_payments_customer/", list_payments_customer, name='list_payments_customer'),
     path("create_customer_api/", create_customer_api, name='create_customer_api'),
     path("update_customer_api/", update_customer_api, name='update_customer_api'),
-    path("delete_customer_api/", delete_customer_api, name='delete_customer_api')
+    path("delete_customer_api/", delete_customer_api, name='delete_customer_api'),
+    path('crear_qr/<id>/', crear_qr, name='crear_qr'),
+    
+	path('editar_reporte/<id>/', editar_reporte, name='editar_reporte'),
+
+
 
 
 
