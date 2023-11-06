@@ -236,62 +236,59 @@ function crearEnlaceDescarga(qrDataURL) {
 var btnCerrar = document.getElementById("btnCerrar");
 var miModal = document.getElementById("miModal");
 
-btnCerrar.onclick = function() {
-    miModal.style.display = "none";
-}
 
 
-function abrir_modal(id){
-    var boton_editar = id
+
+function abrir_modal(id) {
+    var boton_editar = id;
     $.ajax({
-        url:"{% url 'consulta_editar' %}",
+        url: "{% url 'consulta_editar' %}",
         type: 'get',
-        data:{'id':boton_editar},
-        dataType:'json',
+        data: { 'id': boton_editar },
+        dataType: 'json',
         success: function (data) {
+            console.log(data);
+            $("#avisos2").empty();
 
-    $("#avisos2").html("");
-    var tr = 
-    `
-    <div id="miModal" class="modal" style="display:none">
-     <div class="modal-contenido">
-        <h2>Editar Registro `+data[0].pk+`</h2>
+            // Crear el contenido del modal usando una cadena de plantilla literal
+            var modalContent = `
+                <div id="miModal" class="modal" style="display:none">
+                    <div class="modal-contenido">
+                        <h2>Editar Registro ${data[0].pk}</h2>
+                        <div class="form-group">
+                            <label for="nombre_establecimiento" class="col-lg-2 control-label">nombre_establecimiento</label>
+                            <div class="col-lg-10">
+                                <input type="text" class="form-control" name="nombre_establecimiento" id="nombre_establecimiento" placeholder="nombre_establecimiento" value="${data[0].nombre_establecimiento}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="direccion" class="col-lg-2 control-label">direccion</label>
+                            <div class="col-lg-10">
+                                <input type="text" class="form-control" id="direccion" placeholder="direccion" value="${data[0].direccion}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="denominacion" class="col-lg-2 control-label">denominacion</label>
+                            <div class="col-lg-10">
+                                <input type="text" class="form-control" id="denominacion" placeholder="denominacion" value="${data[0].denominacion}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="horario_funcionamiento" class="col-lg-2 control-label">horario_funcionamiento</label>
+                            <div class="col-lg-10">
+                                <input type="text" class="form-control" id="horario_funcionamiento" placeholder="horario_funcionamiento" value="${data[0].horario_funcionamiento}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-lg-10 col-lg-offset-2">
+                                <input class="btn btn-default" onclick="editar_customer(${data[0].pk});" type="submit" value="Ingresar">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
 
-    <div class="form-group">
-      <label for="inputEmail" class="col-lg-2 control-label">nombre_establecimiento</label>
-      <div class="col-lg-10">
-        <input type="text" class="form-control" name="nombre_establecimiento" id="nombre_establecimiento" placeholder="nombre_establecimiento" value=`+data[0].nombre_establecimiento+`>
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="inputEmail" class="col-lg-2 control-label">direccion</label>
-      <div class="col-lg-10">
-        <input type="text" class="form-control" id="direccion" placeholder="direccion" value=`+data[0].direccion+`>
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="inputEmail" class="col-lg-2 control-label">denominacion</label>
-      <div class="col-lg-10">
-        <input type="text" class="form-control" id="denominacion" placeholder="denominacion" value=`+data[0].denominacion+`>
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="inputEmail" class="col-lg-2 control-label">horario_funcionamiento</label>
-      <div class="col-lg-10">
-        <input type="text" class="form-control" id="horario_funcionamiento" placeholder="horario_funcionamiento" value=`+data[0].horario_funcionamiento+`>
-      </div>
-    </div>      
-    <div class="form-group">
-      <div class="col-lg-10 col-lg-offset-2">
-        <input class="btn btn-default" onclick="editar_customer(`+data[0].pk+`);" onclick="cerrar_aviso()" type="submit" value="Ingresar">
-      </div>
-    </div>
-    </div>
-
-    </div>`;
-
-    $("#avisos2").append(tr)
-    var btnAbrir = document.getElementById("btnAbrir");
+    $("#avisos2").append(modalContent)
     var miModal = document.getElementById("miModal");
 
         miModal.style.display = "block";
@@ -307,6 +304,10 @@ function editar_customer(id){
     var horario_funcionamiento = document.getElementById("horario_funcionamiento").value
 
     alert(nombre_establecimiento)
+    alert(direccion)
+    alert(denominacion)
+    alert(horario_funcionamiento)
+
     $.ajax({
     url:"{% url 'editar_customer' %}",
     type: 'get',
@@ -323,7 +324,6 @@ function editar_customer(id){
         if (data.mensaje == 'Se actualizo correctamente'){
             alert(data.mensaje)
             vistas(data)
-            var modal = document.getElementById("miModal");
             modal.style.display = "none";
         }
         else{

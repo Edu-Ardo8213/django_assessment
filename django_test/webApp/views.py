@@ -259,6 +259,7 @@ def consulta_editar(request):
 		for index in range(len(json_objects)):
 			list_id = json_objects[index]['fields']['pk'] = json_objects[index]['pk']
 			list_objects.append(json_objects[index]['fields'])
+		print(list_objects)
 	return HttpResponse(json.dumps(list_objects), content_type='application/json;charset=utf-8')
 
 # Método que trae los registros de las tablas customer y payments customer
