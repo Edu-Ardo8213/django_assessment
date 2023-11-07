@@ -32,17 +32,31 @@
     text-align: center;
 }
 
-
+body {
+    background-image: url('/static/fondo.png'); /* Reemplaza '/ruta/a/tu/imagen.jpg' con la ruta real de tu imagen */
+    background-size: cover; /* Ajusta el tamaño de la imagen para cubrir todo el fondo */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+    background-attachment: fixed; /* Fija la imagen en su lugar mientras se desplaza la página */
+}
       </style>
     <title>{% block title %} Document {% endblock %}</title>
+
 </head>
 
 <body>
   
     {% block navbar %}
+
     <nav class="navbar navbar-default">
         <div class="container-fluid">
           <div class="navbar-header">
+            <div class="row">
+                <div class="col-md-2">
+                    <a href="{% url 'menu' %}">
+                        <img src="https://alcaldiacuauhtemoc.mx/wp-content/uploads/2022/05/logohorizontal-300x124.png" alt="Logo" class="logo">
+                    </a>
+                </div>
+            </div>
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
               <span class="sr-only">Toggle navigation</span>
               <span class="icon-bar"></span>
@@ -236,6 +250,9 @@ function crearEnlaceDescarga(qrDataURL) {
 var btnCerrar = document.getElementById("btnCerrar");
 var miModal = document.getElementById("miModal");
 
+btnCerrar.onclick = function() {
+    miModal.style.display = "none";
+}
 
 
 
@@ -244,79 +261,84 @@ function abrir_modal(id) {
     $.ajax({
         url: "{% url 'consulta_editar' %}",
         type: 'get',
-        data: { 'id': boton_editar },
+        data: { 'id':boton_editar},
         dataType: 'json',
         success: function (data) {
-            console.log(data);
             $("#avisos2").empty();
 
             // Crear el contenido del modal usando una cadena de plantilla literal
-            var modalContent = `
+            var tr = `
                 <div id="miModal" class="modal" style="display:none">
                     <div class="modal-contenido">
                         <h2>Editar Registro ${data[0].pk}</h2>
                         <div class="form-group">
-                            <label for="nombre_establecimiento" class="col-lg-2 control-label">nombre_establecimiento</label>
+                            <label for="inputEmail" class="col-lg-2 control-label">nombre_establecimiento</label>
                             <div class="col-lg-10">
-                                <input type="text" class="form-control" name="nombre_establecimiento" id="nombre_establecimiento" placeholder="nombre_establecimiento" value="${data[0].nombre_establecimiento}">
+                                <input type="text" class="form-control" name="nombre_establecimiento" id="Nombre_establecimiento" placeholder="nombre_establecimiento" value="${data[0].nombre_establecimiento}">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="direccion" class="col-lg-2 control-label">direccion</label>
+                            <label for="inputEmail" class="col-lg-2 control-label">direccion</label>
                             <div class="col-lg-10">
-                                <input type="text" class="form-control" id="direccion" placeholder="direccion" value="${data[0].direccion}">
+                                <input type="text" class="form-control" id="Direccion" placeholder="direccion" value="${data[0].direccion}">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="denominacion" class="col-lg-2 control-label">denominacion</label>
+                            <label for="inputEmail" class="col-lg-2 control-label">denominacion</label>
                             <div class="col-lg-10">
-                                <input type="text" class="form-control" id="denominacion" placeholder="denominacion" value="${data[0].denominacion}">
+                                <input type="text" class="form-control" id="Denominacion" placeholder="denominacion" value="${data[0].denominacion}">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="horario_funcionamiento" class="col-lg-2 control-label">horario_funcionamiento</label>
+                            <label for="inputEmail" class="col-lg-2 control-label">horario_funcionamiento</label>
                             <div class="col-lg-10">
-                                <input type="text" class="form-control" id="horario_funcionamiento" placeholder="horario_funcionamiento" value="${data[0].horario_funcionamiento}">
+                                <input type="text" class="form-control" id="Horario_funcionamiento" placeholder="horario_funcionamiento" value="${data[0].horario_funcionamiento}">
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="col-lg-10 col-lg-offset-2">
-                                <input class="btn btn-default" onclick="editar_customer(${data[0].pk});" type="submit" value="Ingresar">
+                                <input class="btn btn-default" onclick="editar_customer(`+data[0].pk+`);" onclick="cerrar_aviso()" type="submit" value="Ingresar">
                             </div>
                         </div>
                     </div>
                 </div>
             `;
 
-    $("#avisos2").append(modalContent)
+    $("#avisos2").append(tr)
+    var btnAbrir = document.getElementById("btnAbrir");
     var miModal = document.getElementById("miModal");
 
         miModal.style.display = "block";
+        miModal.addEventListener("click", function (e) {
+                if (e.target === miModal) {
+                    cerrar_modal();
+                }
+            });
+
             }
     }) 
 }
-
+function cerrar_modal() {
+    var miModal = document.getElementById("miModal");
+    miModal.style.display = "none";
+}
 
 function editar_customer(id){
-    var nombre_establecimiento = document.getElementById("nombre_establecimiento").value
-    var direccion = document.getElementById("direccion").value
-    var denominacion = document.getElementById("denominacion").value
-    var horario_funcionamiento = document.getElementById("horario_funcionamiento").value
+    var nombre_establecimiento = document.getElementById("Nombre_establecimiento").value
+    var direccion = document.getElementById("Direccion").value
+    var denominacion = document.getElementById("Denominacion").value
+    var horario_funcionamiento = document.getElementById("Horario_funcionamiento").value
 
-    alert(nombre_establecimiento)
-    alert(direccion)
-    alert(denominacion)
-    alert(horario_funcionamiento)
 
     $.ajax({
     url:"{% url 'editar_customer' %}",
     type: 'get',
     data:{
-        'id':id,
         'nombre_establecimiento':nombre_establecimiento,
         'direccion':direccion,
         'denominacion':denominacion,
-        'horario_funcionamiento':horario_funcionamiento
+        'horario_funcionamiento':horario_funcionamiento,
+        'id':id,
 
     },
     dataType:'json',
@@ -324,6 +346,7 @@ function editar_customer(id){
         if (data.mensaje == 'Se actualizo correctamente'){
             alert(data.mensaje)
             vistas(data)
+            var modal = document.getElementById("miModal");
             modal.style.display = "none";
         }
         else{

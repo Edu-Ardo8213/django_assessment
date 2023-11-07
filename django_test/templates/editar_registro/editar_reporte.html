@@ -1,9 +1,27 @@
 {% extends 'base/base.html' %}
 {% block content %}
 <br>
-<h2>Registro ha actualizar con el Folio {{ ID.id }}</h2>
+<style>
+	/* Estilo para ocultar el botón al imprimir */
+	@media print {
+		.ocultar-en-impresion {
+			display: none;
+		}
+	}
+</style>
+{% block navbar %}
+
+{% endblock %}
 <form action="{% url 'editar_reporte' ID.id %}" method="GET">
 	{% csrf_token %}
+	<div class="row">
+		<div class="col-md-2">
+			<a href="{% url 'menu' %}">
+				<img src="https://alcaldiacuauhtemoc.mx/wp-content/uploads/2022/05/logohorizontal-300x124.png" alt="Logo" class="logo">
+			</a>
+		</div>
+	</div>
+	<h2>Reporte con el folio {{ ID.id }}</h2>
 
 	<div class="row">
 		<div class="col-md-10 col-md-offset-2">
@@ -39,8 +57,15 @@
 
 	
 </form>
+<button class="ocultar-en-impresion" onclick="imprimirPagina()">Imprimir</button>
+
+
 {% block javascript %}
 
-
+<script>
+	function imprimirPagina() {
+		window.print(); // Función para imprimir la página actual
+	}
+</script>
 {% endblock %}
 {% endblock %}
